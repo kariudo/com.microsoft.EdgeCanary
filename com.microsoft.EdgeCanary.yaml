@@ -1,4 +1,4 @@
-app-id: com.microsoft.Edge
+app-id: com.microsoft.EdgeCanary
 runtime: org.freedesktop.Platform
 runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
@@ -13,7 +13,7 @@ tags:
 finish-args:
   - --device=all
   - --env=GTK_PATH=/app/lib/gtkmodules
-  - --env=CHROME_VERSION_EXTRA=beta
+  - --env=CHROME_VERSION_EXTRA=canary
   - --share=ipc
   - --share=network
   - --socket=cups
@@ -120,24 +120,24 @@ modules:
       - install -Dm 755 apply_extra.sh /app/bin/apply_extra
       - install -Dm 755 stub_sandbox.sh /app/bin/stub_sandbox
       - install -Dm 644 -t /app/etc cobalt.ini
-      - install -Dm 644 -t /app/share/applications com.microsoft.Edge.desktop
-      - install -Dm 644 -t /app/share/metainfo com.microsoft.Edge.metainfo.xml
-      - install -Dm 644 com.microsoft.Edge-256.png /app/share/icons/hicolor/256x256/apps/com.microsoft.Edge.png
+      - install -Dm 644 -t /app/share/applications com.microsoft.EdgeCanary.desktop
+      - install -Dm 644 -t /app/share/metainfo com.microsoft.EdgeCanary.metainfo.xml
+      - install -Dm 644 com.microsoft.EdgeCanary-256.png /app/share/icons/hicolor/256x256/apps/com.microsoft.EdgeCanary.png
       # workaround for broken 3d acceleration with ozone x11
       - install -Dm 644 -t /app/etc ld.so.conf
     sources:
       - type: extra-data
-        # From https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-beta
-        url: https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-beta/microsoft-edge-beta_148.0.3967.20-1_amd64.deb
-        sha256: 780201b3350e289ada985c2fc9eaa2d6d8d127467ee0dcb2525fd146701b29c2
+        # From https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-canary
+        url: https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-canary/microsoft-edge-canary_149.0.3992.0-1_amd64.deb
+        sha256: 4eb29183ffe8ffc0800b4a4d10ca0892017ab121ce874911bcad794a58899683
         filename: edge.deb
         x-checker-data:
           type: debian-repo
-          package-name: microsoft-edge-beta
+          package-name: microsoft-edge-canary
           root: https://packages.microsoft.com/repos/edge
           dist: stable
           component: main
-        size: 181872054
+        size: 182781510
       - type: script
         dest-filename: stub_sandbox.sh
         commands:
@@ -150,10 +150,10 @@ modules:
       - type: file
         path: apply_extra.sh
       - type: file
-        path: com.microsoft.Edge.desktop
+        path: com.microsoft.EdgeCanary.desktop
       - type: file
-        path: com.microsoft.Edge.metainfo.xml
+        path: com.microsoft.EdgeCanary.metainfo.xml
       - type: file
-        path: icons/com.microsoft.Edge-256.png
+        path: icons/com.microsoft.EdgeCanary-256.png
       - type: file
         path: ld.so.conf

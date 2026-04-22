@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2017 the Chromium authors, with modifications -->
 <component type="desktop">
-  <id>com.microsoft.Edge</id>
-  <launchable type="desktop-id">com.microsoft.Edge.desktop</launchable>
+  <id>com.microsoft.EdgeCanary</id>
+  <launchable type="desktop-id">com.microsoft.EdgeCanary.desktop</launchable>
   <name>Microsoft Edge</name>
   <developer_name>Microsoft Corporation</developer_name>
   <summary>Introducing the new Microsoft Edge web browser. It’s time to expect more. More privacy. More control. More productivity. More value.</summary>
@@ -32,7 +32,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="148.0.3967.20-1" date="2026-04-20">
+    <release version="149.0.3992.0-1" date="2026-04-22">
       <description></description>
     </release>
     <release version="148.0.3967.12-1" date="2026-04-16">
