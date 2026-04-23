@@ -12,6 +12,7 @@ permissions:
 
 env:
   PAGES_ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+  FLATPAK_DEFAULT_BRANCH: canary
 
 jobs:
   build:
@@ -44,6 +45,7 @@ jobs:
         run: |
           sudo flatpak-builder \
             --force-clean \
+            --default-branch=${{ env.FLATPAK_DEFAULT_BRANCH }} \
             --repo=repo \
             build-dir \
             com.microsoft.EdgeCanary.yaml
