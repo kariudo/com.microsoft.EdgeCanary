@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edge Canary Flatpak Repository</title>
+  <style>
+    :root {
+      --md-sys-color-primary: #93c5fd;
+      --md-sys-color-on-primary: #0b1220;
+      --md-sys-color-primary-container: #1e3a5f;
+      --md-sys-color-on-primary-container: #dbeafe;
+      --md-sys-color-secondary: #5eead4;
+      --md-sys-color-surface: #0b1020;
+      --md-sys-color-surface-variant: #121a2f;
+      --md-sys-color-outline: #334155;
+      --md-sys-color-on-surface: #e2e8f0;
+      --md-sys-color-on-surface-muted: #94a3b8;
+      --md-elevation-1: 0 6px 18px rgba(2, 6, 23, 0.5);
+      --md-elevation-2: 0 16px 38px rgba(2, 6, 23, 0.62);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --radius-sm: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Nunito Sans", "Segoe UI", sans-serif;
+      color: var(--md-sys-color-on-surface);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(56, 189, 248, 0.25) 0%, transparent 45%),
+        radial-gradient(circle at 88% 18%, rgba(45, 212, 191, 0.2) 0%, transparent 42%),
+        linear-gradient(180deg, #060a17 0%, #0b1020 55%, #111827 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .brand-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #2563eb, #14b8a6);
+      box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--md-sys-color-on-surface);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border-radius: 999px;
+      transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+      border-color: #60a5fa;
+      box-shadow: var(--md-elevation-1);
+    }
+
+    .hero {
+      background: linear-gradient(145deg, rgba(30, 58, 95, 0.72), rgba(15, 118, 110, 0.3));
+      border: 1px solid rgba(96, 165, 250, 0.22);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--md-elevation-2);
+      padding: 30px 26px;
+      margin-bottom: 18px;
+      animation: fade-in 500ms ease-out;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+      line-height: 1.15;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--md-sys-color-on-surface-muted);
+      font-size: 1rem;
+      max-width: 68ch;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.76);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: var(--radius-md);
+      box-shadow: var(--md-elevation-1);
+      padding: 18px;
+      animation: rise 360ms ease-out both;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .span-8 {
+      grid-column: span 8;
+    }
+
+    .span-4 {
+      grid-column: span 4;
+    }
+
+    .command {
+      margin: 0;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      background: #020617;
+      color: #cbd5e1;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+    }
+
+    .command-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .command-head h2 {
+      margin: 0;
+    }
+
+    .copy-btn {
+      border: 1px solid rgba(147, 197, 253, 0.6);
+      background: rgba(30, 58, 95, 0.95);
+      color: #dbeafe;
+      border-radius: 10px;
+      padding: 7px 11px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1;
+      box-shadow: 0 2px 8px rgba(2, 6, 23, 0.35);
+    }
+
+    .copy-btn:hover {
+      border-color: #93c5fd;
+      color: #ffffff;
+    }
+
+    .copy-btn:focus-visible {
+      outline: 2px solid #93c5fd;
+      outline-offset: 2px;
+    }
+
+    .copy-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .meta-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--md-sys-color-on-surface-muted);
+    }
+
+    .meta-list li+li {
+      margin-top: 8px;
+    }
+
+    .footer {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: var(--md-sys-color-on-surface-muted);
+    }
+
+    a {
+      color: #93c5fd;
+    }
+
+    a:hover {
+      color: #bfdbfe;
+    }
+
+    @media (max-width: 880px) {
+
+      .span-8,
+      .span-4 {
+        grid-column: span 12;
+      }
+
+      .hero {
+        padding: 24px 18px;
+      }
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>Edge Canary Flatpak</span>
+      </div>
+      <nav class="nav" aria-label="Repository links">
+        <a class="chip" href="https://github.com/${REPO_FULL}">GitHub Repo</a>
+        <a class="chip" href="https://github.com/${REPO_FULL}/actions/workflows/build-pages.yaml">Build Workflow</a>
+        <a class="chip" href="https://github.com/${REPO_FULL}/issues">Issues</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <h1>Install Microsoft Edge (Canary) Flatpak</h1>
+      <p class="sub">
+        This repository is rebuilt automatically and published with GitHub Pages,
+        and the package bundled is updated daily from the official Microsoft Edge
+        Cannary channel, using GitHub Actions and Flatpak.
+      </p>
+      <br />
+      <p class="sub">Follow the two commands below to add the remote and install the app.</p>
+    </section>
+
+    <section class="grid" aria-label="Install instructions and repository details">
+      <article class="card span-8" style="animation-delay: 80ms;">
+        <div class="command-head">
+          <h2>1. Add the remote</h2>
+          <button class="copy-btn" type="button" data-copy-target="cmd-add-remote" aria-label="Copy add remote command">
+            <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" />
+            </svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
+        <pre class="command"
+          id="cmd-add-remote">flatpak remote-add --if-not-exists --user --no-gpg-verify edgecanary https://${REPO_OWNER}.github.io/${REPO_NAME}/</pre>
+      </article>
+
+      <article class="card span-4" style="animation-delay: 120ms;">
+        <h2>Repository</h2>
+        <ul class="meta-list">
+          <li>Name: edgecanary</li>
+          <li>Source: GitHub Pages</li>
+          <li>GPG summary: disabled for this remote</li>
+        </ul>
+      </article>
+
+      <article class="card span-8" style="animation-delay: 160ms;">
+        <div class="command-head">
+          <h2>2. Install the app</h2>
+          <button class="copy-btn" type="button" data-copy-target="cmd-install-app" aria-label="Copy install command">
+            <svg class="copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" />
+            </svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </div>
+        <pre class="command" id="cmd-install-app">flatpak install --user edgecanary com.microsoft.EdgeCanary</pre>
+      </article>
+
+      <article class="card span-4" style="animation-delay: 200ms;">
+        <h2>Quick navigation</h2>
+        <ul class="meta-list">
+          <li><a href="https://github.com/${REPO_FULL}/blob/${REF_NAME}/com.microsoft.EdgeCanary.yaml">Manifest file</a>
+          </li>
+          <li><a href="https://github.com/${REPO_FULL}/actions">All Actions runs</a></li>
+        </ul>
+      </article>
+    </section>
+
+    <p class="footer">
+      &copy; 2026 kariudo. Microsoft Edge and related trademarks are copyright of Microsoft Corporation.
+    </p>
+  </main>
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(function (button) {
+      button.addEventListener('click', async function () {
+        var targetId = button.getAttribute('data-copy-target');
+        var target = document.getElementById(targetId);
+        var label = button.querySelector('.copy-label');
+        if (!target) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(target.textContent.trim());
+          if (label) {
+            label.textContent = 'Copied';
+          }
+          setTimeout(function () {
+            if (label) {
+              label.textContent = 'Copy';
+            }
+          }, 1200);
+        } catch (err) {
+          if (label) {
+            label.textContent = 'Failed';
+          }
+          setTimeout(function () {
+            if (label) {
+              label.textContent = 'Copy';
+            }
+          }, 1200);
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

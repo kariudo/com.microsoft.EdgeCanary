@@ -52,21 +52,12 @@ jobs:
         run: sudo chown -R "$USER" repo
 
       - name: Add repo index page
-        run: |
-          cat > repo/index.html <<'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head><title>com.microsoft.EdgeCanary Flatpak repo</title></head>
-          <body>
-            <h1>com.microsoft.EdgeCanary Flatpak repository</h1>
-            <p>Add this repository with:</p>
-            <pre>flatpak remote-add --if-not-exists --user --no-gpg-verify edgecanary \
-            https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/</pre>
-            <p>Then install:</p>
-            <pre>flatpak install --user edgecanary com.microsoft.EdgeCanary</pre>
-          </body>
-          </html>
-          EOF
+        env:
+          REPO_FULL: ${{ github.repository }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          REF_NAME: ${{ github.ref_name }}
+        run: envsubst < .github/assets/index.html > repo/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
