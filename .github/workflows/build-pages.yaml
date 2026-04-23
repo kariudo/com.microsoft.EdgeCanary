@@ -10,6 +10,9 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  PAGES_ARTIFACT_NAME: github-pages-${{ github.run_id }}-${{ github.run_attempt }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -68,8 +71,11 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          name: ${{ env.PAGES_ARTIFACT_NAME }}
           path: repo
 
       - name: Deploy to GitHub Pages
         id: deploy
         uses: actions/deploy-pages@v6
+        with:
+          artifact_name: ${{ env.PAGES_ARTIFACT_NAME }}
