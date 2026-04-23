@@ -48,7 +48,7 @@ jobs:
             --default-branch=${{ env.FLATPAK_DEFAULT_BRANCH }} \
             --repo=repo \
             build-dir \
-            com.microsoft.EdgeCanary.yaml
+            com.microsoft.Edge.yaml
 
       - name: Fix repo directory ownership
         run: sudo chown -R "$USER" repo
