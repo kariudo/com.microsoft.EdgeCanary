@@ -13,7 +13,6 @@ tags:
 finish-args:
   - --device=all
   - --env=GTK_PATH=/app/lib/gtkmodules
-  - --env=CHROME_VERSION_EXTRA=canary
   - --share=ipc
   - --share=network
   - --socket=cups
