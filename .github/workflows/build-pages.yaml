@@ -1,0 +1,75 @@
+name: Build Canary Flatpak
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"  # daily at 06:00 UTC
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Flatpak tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y flatpak flatpak-builder
+
+      - name: Add Flathub remote
+        run: |
+          sudo flatpak remote-add --if-not-exists flathub \
+            https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Install runtime and SDK
+        run: |
+          sudo flatpak install -y --noninteractive flathub \
+            org.freedesktop.Platform/x86_64/25.08 \
+            org.freedesktop.Sdk/x86_64/25.08 \
+            org.chromium.Chromium.BaseApp/x86_64/25.08
+
+      - name: Build Flatpak repo
+        run: |
+          sudo flatpak-builder \
+            --force-clean \
+            --repo=repo \
+            build-dir \
+            com.microsoft.EdgeCanary.yaml
+
+      - name: Fix repo directory ownership
+        run: sudo chown -R "$USER" repo
+
+      - name: Add repo index page
+        run: |
+          cat > repo/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head><title>com.microsoft.EdgeCanary Flatpak repo</title></head>
+          <body>
+            <h1>com.microsoft.EdgeCanary Flatpak repository</h1>
+            <p>Add this repository with:</p>
+            <pre>flatpak remote-add --user edgecanary \
+            https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/</pre>
+            <p>Then install:</p>
+            <pre>flatpak install --user edgecanary com.microsoft.EdgeCanary</pre>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: repo
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

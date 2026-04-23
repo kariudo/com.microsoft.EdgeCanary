@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        branch: [ master, beta ]
+        branch: [ canary ]
     steps:
       - uses: actions/checkout@v3
         with:
