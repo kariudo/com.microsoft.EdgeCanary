@@ -1,5 +1,10 @@
 # com.microsoft.EdgeCanary
 
+## Installation Instructions
+
+Install this app using the instructions on GitHub Pages:
+https://kariudo.dev/com.microsoft.EdgeCanary
+
 ## Troubleshooting
 
 ### Game controllers not working
