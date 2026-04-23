@@ -74,16 +74,33 @@ export NEW_URL="${best_url}"
 export NEW_SHA256="${best_sha256}"
 export NEW_SIZE="${best_size}"
 
-perl -0777 -i -pe '
-  s{(
-      \n\s*-\s*type:\s*extra-data\s*\n
-      (?:.*\n)*?
-      \s*url:\s*)\S+(
-      \s*sha256:\s*)\S+(
-      (?:.*\n)*?
-      \s*size:\s*)\d+
-    }{$1$ENV{NEW_URL}$2$ENV{NEW_SHA256}$3$ENV{NEW_SIZE}\n}xms;
-' "${MANIFEST_FILE}"
+tmp_manifest="$(mktemp)"
+in_extra_data=0
+updated_block=0
+
+while IFS= read -r line; do
+  if [[ ${updated_block} -eq 0 && "${line}" =~ ^[[:space:]]*-[[:space:]]type:[[:space:]]*extra-data[[:space:]]*$ ]]; then
+    in_extra_data=1
+  elif [[ ${in_extra_data} -eq 1 && "${line}" =~ ^[[:space:]]*-[[:space:]]type:[[:space:]]* ]]; then
+    in_extra_data=0
+  fi
+
+  if [[ ${in_extra_data} -eq 1 ]]; then
+    if [[ "${line}" =~ ^([[:space:]]*)url:[[:space:]]+https://packages\.microsoft\.com/repos/edge/pool/main/m/microsoft-edge-canary/microsoft-edge-canary_[^[:space:]]+_amd64\.deb[[:space:]]*$ ]]; then
+      line="${BASH_REMATCH[1]}url: ${NEW_URL}"
+    elif [[ "${line}" =~ ^([[:space:]]*)sha256:[[:space:]]+[0-9a-f]{64}[[:space:]]*$ ]]; then
+      line="${BASH_REMATCH[1]}sha256: ${NEW_SHA256}"
+    elif [[ "${line}" =~ ^([[:space:]]*)size:[[:space:]]+[0-9]+[[:space:]]*$ ]]; then
+      line="${BASH_REMATCH[1]}size: ${NEW_SIZE}"
+      updated_block=1
+      in_extra_data=0
+    fi
+  fi
+
+  printf '%s\n' "${line}" >> "${tmp_manifest}"
+done < "${MANIFEST_FILE}"
+
+mv "${tmp_manifest}" "${MANIFEST_FILE}"
 
 if git diff --quiet -- "${MANIFEST_FILE}"; then
   echo "No manifest changes were necessary."
