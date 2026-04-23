@@ -60,7 +60,7 @@ jobs:
           <body>
             <h1>com.microsoft.EdgeCanary Flatpak repository</h1>
             <p>Add this repository with:</p>
-            <pre>flatpak remote-add --user edgecanary \
+            <pre>flatpak remote-add --if-not-exists --user --no-gpg-verify edgecanary \
             https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/</pre>
             <p>Then install:</p>
             <pre>flatpak install --user edgecanary com.microsoft.EdgeCanary</pre>
