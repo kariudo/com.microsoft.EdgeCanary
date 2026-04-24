@@ -2,12 +2,18 @@
 set -euo pipefail
 
 MANIFEST_FILE="com.microsoft.Edge.yaml"
+METAINFO_FILE="com.microsoft.Edge.metainfo.xml"
 PACKAGE_NAME="microsoft-edge-canary"
 REPO_ROOT_URL="https://packages.microsoft.com/repos/edge"
 PACKAGES_GZ_URL="${REPO_ROOT_URL}/dists/stable/main/binary-amd64/Packages.gz"
 
 if [[ ! -f "${MANIFEST_FILE}" ]]; then
   echo "Manifest not found: ${MANIFEST_FILE}" >&2
+  exit 1
+fi
+
+if [[ ! -f "${METAINFO_FILE}" ]]; then
+  echo "Metainfo not found: ${METAINFO_FILE}" >&2
   exit 1
 fi
 
@@ -73,6 +79,10 @@ echo "Size: ${best_size}"
 export NEW_URL="${best_url}"
 export NEW_SHA256="${best_sha256}"
 export NEW_SIZE="${best_size}"
+export NEW_VERSION="${best_version}"
+
+release_date="$(date -u +%F)"
+new_major="${NEW_VERSION%%.*}"
 
 tmp_manifest="$(mktemp)"
 in_extra_data=0
@@ -102,8 +112,65 @@ done < "${MANIFEST_FILE}"
 
 mv "${tmp_manifest}" "${MANIFEST_FILE}"
 
-if git diff --quiet -- "${MANIFEST_FILE}"; then
-  echo "No manifest changes were necessary."
+tmp_metainfo="$(mktemp)"
+in_releases=0
+updated_release=0
+first_release_seen=0
+re_releases_open='^[[:space:]]*<releases>[[:space:]]*$'
+re_release_line='^([[:space:]]*)<release[[:space:]]+version="([^"]+)"[[:space:]]+date="([^"]+)"([^>]*)>[[:space:]]*$'
+re_releases_close='^[[:space:]]*</releases>[[:space:]]*$'
+
+while IFS= read -r line; do
+  if [[ ${in_releases} -eq 0 && "${line}" =~ ${re_releases_open} ]]; then
+    in_releases=1
+    printf '%s\n' "${line}" >> "${tmp_metainfo}"
+    continue
+  fi
+
+  if [[ ${in_releases} -eq 1 && ${first_release_seen} -eq 0 && "${line}" =~ ${re_release_line} ]]; then
+    indent="${BASH_REMATCH[1]}"
+    current_version="${BASH_REMATCH[2]}"
+    current_major="${current_version%%.*}"
+
+    if [[ "${current_major}" == "${new_major}" ]]; then
+      line="${line/version=\"${current_version}\"/version=\"${NEW_VERSION}\"}"
+      line="${line/date=\"${BASH_REMATCH[3]}\"/date=\"${release_date}\"}"
+      printf '%s\n' "${line}" >> "${tmp_metainfo}"
+    else
+      printf '%s\n' "${indent}<release version=\"${NEW_VERSION}\" date=\"${release_date}\">" >> "${tmp_metainfo}"
+      printf '%s\n' "${indent}  <description/>" >> "${tmp_metainfo}"
+      printf '%s\n' "${indent}</release>" >> "${tmp_metainfo}"
+      printf '%s\n' "${line}" >> "${tmp_metainfo}"
+    fi
+
+    first_release_seen=1
+    updated_release=1
+    continue
+  fi
+
+  if [[ ${in_releases} -eq 1 && ${first_release_seen} -eq 0 && "${line}" =~ ${re_releases_close} ]]; then
+    printf '%s\n' "    <release version=\"${NEW_VERSION}\" date=\"${release_date}\">" >> "${tmp_metainfo}"
+    printf '%s\n' "      <description/>" >> "${tmp_metainfo}"
+    printf '%s\n' "    </release>" >> "${tmp_metainfo}"
+    first_release_seen=1
+    updated_release=1
+  fi
+
+  if [[ ${in_releases} -eq 1 && "${line}" =~ ${re_releases_close} ]]; then
+    in_releases=0
+  fi
+
+  printf '%s\n' "${line}" >> "${tmp_metainfo}"
+done < "${METAINFO_FILE}"
+
+mv "${tmp_metainfo}" "${METAINFO_FILE}"
+
+if [[ ${updated_release} -eq 0 ]]; then
+  echo "Warning: no <release> entry was updated in ${METAINFO_FILE}" >&2
+fi
+
+if git diff --quiet -- "${MANIFEST_FILE}" "${METAINFO_FILE}"; then
+  echo "No manifest or metainfo changes were necessary."
 else
-  echo "Updated ${MANIFEST_FILE} with latest ${PACKAGE_NAME} metadata."
+  echo "Updated ${MANIFEST_FILE} and ${METAINFO_FILE} with latest ${PACKAGE_NAME} metadata."
 fi
