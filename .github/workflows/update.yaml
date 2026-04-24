@@ -6,6 +6,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
@@ -13,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TARGET_BRANCH: canary
+    outputs:
+      updated: ${{ steps.detect-changes.outputs.updated }}
     steps:
       - name: Checkout target branch
         uses: actions/checkout@v6
@@ -23,16 +26,27 @@ jobs:
       - name: Update package URL, checksum, and size
         run: ./.github/scripts/update-edge-canary.sh
 
-      - name: Commit and push changes
+      - name: Detect updated package metadata
+        id: detect-changes
         run: |
-          if git diff --quiet -- com.microsoft.Edge.yaml; then
-            echo "No changes detected"
-            exit 0
+          if git diff --quiet -- com.microsoft.Edge.yaml com.microsoft.Edge.metainfo.xml; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Commit and push changes
+        if: steps.detect-changes.outputs.updated == 'true'
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add com.microsoft.Edge.yaml
+          git add com.microsoft.Edge.yaml com.microsoft.Edge.metainfo.xml
           git commit -m "Update Edge Canary package metadata"
           git push origin HEAD:${TARGET_BRANCH}
+
+      - name: Trigger canary build workflow
+        if: steps.detect-changes.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run build-pages.yaml --ref "${TARGET_BRANCH}"
