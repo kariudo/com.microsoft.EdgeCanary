@@ -2,7 +2,8 @@ name: Nightly Edge Canary Update
 
 on:
   schedule:
-    - cron: "17 2 * * *"
+    - cron: "30 13 * * *"
+    - cron: "30 23 * * *"
   workflow_dispatch: {}
 
 permissions:
