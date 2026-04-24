@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MANIFEST_FILE="com.microsoft.EdgeCanary.yaml"
+MANIFEST_FILE="com.microsoft.Edge.yaml"
 PACKAGE_NAME="microsoft-edge-canary"
 REPO_ROOT_URL="https://packages.microsoft.com/repos/edge"
 PACKAGES_GZ_URL="${REPO_ROOT_URL}/dists/stable/main/binary-amd64/Packages.gz"
