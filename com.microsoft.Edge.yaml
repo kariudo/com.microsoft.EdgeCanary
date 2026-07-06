@@ -127,8 +127,8 @@ modules:
     sources:
       - type: extra-data
         # From https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-canary
-        url: https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-canary/microsoft-edge-canary_152.0.4133.0-1_amd64.deb
-        sha256: ae1212c19a55c4f65a5501c3d6a2ee8c65a53a13e370fd59bead3f74a517b7ea
+        url: https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-canary/microsoft-edge-canary_152.0.4139.0-1_amd64.deb
+        sha256: 24404aa32d8ee88152b8be9fbf40f9dc9325ec7fd016da5495c4851dab52c686
         filename: edge.deb
         x-checker-data:
           type: debian-repo
@@ -136,7 +136,7 @@ modules:
           root: https://packages.microsoft.com/repos/edge
           dist: stable
           component: main
-        size: 191187202
+        size: 191360358
       - type: script
         dest-filename: stub_sandbox.sh
         commands:
