@@ -153,6 +153,6 @@ modules:
       - type: file
         path: com.microsoft.Edge.metainfo.xml
       - type: file
-        path: icons/com.microsoft.Edge-256.png
+        path: icons/com.microsoft.EdgeCanary-256.png
       - type: file
         path: ld.so.conf
