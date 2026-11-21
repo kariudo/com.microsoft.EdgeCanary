@@ -43,15 +43,12 @@ jobs:
 
       - name: Build Flatpak repo
         run: |
-          sudo flatpak-builder \
+          flatpak-builder \
             --force-clean \
             --default-branch=${{ env.FLATPAK_DEFAULT_BRANCH }} \
             --repo=repo \
             build-dir \
             com.microsoft.Edge.yaml
-
-      - name: Fix repo directory ownership
-        run: sudo chown -R "$USER" repo
 
       - name: Add repo index page
         env:
